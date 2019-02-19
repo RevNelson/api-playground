@@ -1,0 +1,15 @@
+type User @db(name: "users") {
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  name: Name
+  email: String
+}
+
+type Name @embedded {
+  en: String
+  zh: String
+  it: String
+  fr: String
+  es: String
+}
