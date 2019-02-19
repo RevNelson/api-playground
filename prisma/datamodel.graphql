@@ -2,8 +2,9 @@ type User @db(name: "users") {
   id: ID! @unique @id
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
+  password: String!
+  username: String! @unique
   name: Name
-  email: String
 }
 
 type Name @embedded {

@@ -1,11 +1,11 @@
-const { gql } = require("apollo-server-express");
+import { gql } from "apollo-server-express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const userTypes = gql`
   type User {
     id: ID!
-    email: String!
-    password: String!
-    name: Name
+    username: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -24,15 +24,13 @@ const userTypes = gql`
   }
 
   extend type Mutation {
-    _empty_: String
+    registerUser(username: String!, password: String!): User!
+    loginUser(username: String!, password: String!): LoginUserResponse!
   }
 
-  input NameInput {
-    en: String
-    zh: String
-    it: String
-    fr: String
-    es: String
+  type LoginUserResponse {
+    token: String
+    user: User
   }
 `;
 
@@ -64,7 +62,49 @@ const userResolvers = {
     }
   },
 
-  Mutation: {}
+  Mutation: {
+    registerUser: async (_, { username, password }, { prisma }, info) => {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = await prisma.mutation.createUser({
+        data: {
+          username,
+          password: hashedPassword
+        }
+      });
+      return user;
+    },
+    loginUser: async (_, { username, password }, { prisma }, info) => {
+      const user = await prisma.query.user({
+        where: { username }
+      });
+      console.log(user);
+
+      if (!user) {
+        throw new Error("Invalid Login");
+      }
+
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      if (!passwordMatch) {
+        throw new Error("Invalid Login");
+      }
+
+      const token = jwt.sign(
+        {
+          id: user.id,
+          username: user.email
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "30d"
+        }
+      );
+      return {
+        token,
+        user
+      };
+    }
+  }
 };
 
 module.exports = { userTypes, userResolvers };

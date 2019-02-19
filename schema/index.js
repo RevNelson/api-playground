@@ -85,11 +85,11 @@ const apolloServer = new ApolloServer({
     }
   },
   formatError: error => {
-    console.log(error);
+    console.log("Error: ", error);
     return error;
   },
   formatResponse: response => {
-    console.log(response);
+    console.log("Response: ", response);
     return response;
   }
 });
