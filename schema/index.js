@@ -1,4 +1,4 @@
-require("dotenv").config();
+import { config } from "dotenv";
 import merge from "lodash.merge";
 import { ApolloServer } from "apollo-server-express";
 import { Prisma, extractFragmentReplacements } from "prisma-binding";
@@ -6,6 +6,8 @@ import { GraphQLScalarType } from "graphql";
 import { isISO8601 } from "validator";
 
 import { userTypes, userResolvers } from "./user";
+
+config();
 
 const { PRISMA_PORT, PRISMA_MANAGEMENT_API_SECRET } = process.env;
 
@@ -71,10 +73,10 @@ const prisma = new Prisma({
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({ req }) => {
+  context: async ({ req, res }) => {
     req.user && console.log("CTX User: ", req.user);
     req.userId && console.log("CTX UserID: ", req.userId);
-    return { prisma, ...req, userId: req.user && req.user._id };
+    return { prisma, ...req, userId: req.userId && req.userId, res };
   },
   fragmentReplacements,
   playground: {

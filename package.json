@@ -2,22 +2,22 @@
   "name": "api-playground",
   "version": "1.0.0",
   "description": "API Playground",
-  "main": "index.js",
+  "main": "server.js",
   "author": "Michael Nelson <revnelson@gmail.com>",
   "license": "GPL-3.0",
   "scripts": {
     "build": "babel . -d dist --ignore 'node_modules','dist'",
     "prisma": "prisma deploy -e .env",
-    "dev": "nodemon .  --ext js,graphql --exec babel-node",
-    "start": "yarn build && node dist/index.js",
-    "pm2": "yarn build && pm2 start dist/index.js --name $npm_package_name",
+    "dev": "nodemon .  --ext js,graphql --exec babel-node --reset-cache",
+    "start": "yarn build && node dist/server.js",
+    "pm2": "yarn build && pm2 start dist/server.js --name $npm_package_name",
     "git-up": "pm2 stop $npm_package_name && git pull && yarn install && yarn pm2"
   },
   "dependencies": {
     "apollo-server-express": "^2.2.6",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.3",
-    "cookie-parser": "^1.4.3",
+    "cookie": "^0.3.1",
     "cors": "^2.8.5",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
@@ -28,11 +28,9 @@
     "helmet": "^3.15.0",
     "jsonwebtoken": "^8.4.0",
     "lodash.merge": "^4.6.1",
-    "morgan": "^1.9.1",
     "node-wait-for-it": "^0.2.0",
     "nodeify": "^1.0.1",
     "passport": "^0.4.0",
-    "passport-jwt": "^4.0.0",
     "prisma-binding": "^2.2.10",
     "validator": "^10.9.0"
   },
@@ -46,6 +44,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.3.2",
     "@babel/preset-env": "^7.3.1",
     "env-cmd": "^8.0.2",
+    "morgan": "^1.9.1",
     "nodemon": "^1.18.6"
   }
 }

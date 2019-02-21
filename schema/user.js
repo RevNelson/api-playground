@@ -1,6 +1,5 @@
 import { gql } from "apollo-server-express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { checkPass, hashPass, loginSuccess, clearCookie } from "../lib";
 
 const userTypes = gql`
   type User {
@@ -20,12 +19,14 @@ const userTypes = gql`
 
   extend type Query {
     users(query: String): [User!]!
-    getUser: User!
+    checkAuth: User
+    getUser: User
   }
 
   extend type Mutation {
     registerUser(username: String!, password: String!): User!
     loginUser(username: String!, password: String!): LoginUserResponse!
+    logoutUser: String
   }
 
   type LoginUserResponse {
@@ -54,17 +55,23 @@ const userResolvers = {
 
       return prisma.query.users(opArgs, info);
     },
-    async getUser(_, { data }, { prisma, userId }, info) {
-      console.log("Get User ID: ", userId);
-      if (userId) {
-        return prisma.query.user({ where: { id: userId } }, info);
+    checkAuth: async (_, { data }, { prisma, res, user }, info) => {
+      console.log("Get User ID: ", user);
+      if (user) {
+        return await prisma.query.user({ where: { id: user.id } });
+      }
+    },
+    getUser: async (_, { data }, { prisma, user }, info) => {
+      console.log("Get User ID: ", user);
+      if (user) {
+        return prisma.query.user({ where: { id: user.id } });
       }
     }
   },
 
   Mutation: {
     registerUser: async (_, { username, password }, { prisma }, info) => {
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await hashPass(password);
       const user = await prisma.mutation.createUser({
         data: {
           username,
@@ -73,36 +80,26 @@ const userResolvers = {
       });
       return user;
     },
-    loginUser: async (_, { username, password }, { prisma }, info) => {
+    loginUser: async (_, { username, password }, { prisma, res }, info) => {
       const user = await prisma.query.user({
         where: { username }
       });
-      console.log(user);
 
       if (!user) {
         throw new Error("Invalid Login");
       }
 
-      const passwordMatch = await bcrypt.compare(password, user.password);
+      const passwordMatch = await checkPass(password, user.password);
 
       if (!passwordMatch) {
         throw new Error("Invalid Login");
       }
 
-      const token = jwt.sign(
-        {
-          id: user.id,
-          username: user.email
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "30d"
-        }
-      );
-      return {
-        token,
-        user
-      };
+      return loginSuccess(res, user);
+    },
+    logoutUser: async (_, none, { res, user }, info) => {
+      clearCookie(res);
+      return user.username || "";
     }
   }
 };
