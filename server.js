@@ -28,7 +28,7 @@ const start = async () => {
 
     app.post("*", function(req, res, next) {
       let user;
-
+      console.log(req.headers);
       // Check for Cookies
       const cookie = cookies.parse(req.headers.cookie || "");
       cookie[API_NAME] && (user = checkJWT(cookie[API_NAME]));
