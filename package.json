@@ -11,7 +11,10 @@
     "dev": "nodemon .  --ext js,graphql --exec babel-node --reset-cache",
     "start": "yarn build && node dist/server.js",
     "pm2": "yarn build && pm2 start dist/server.js --name $npm_package_name",
-    "git-up": "pm2 stop $npm_package_name && git pull && yarn install && yarn pm2"
+    "pm2:stop": "pm2 stop $npm_package_name",
+    "git-pull": "git pull && yarn install && && yarn build",
+    "git-up": "yarn pm2:stop && yarn git-pull && pm2 start $npm_package_name",
+    "git-watch": "yarn pm2:stop && yarn git-pull && yarn start"
   },
   "dependencies": {
     "apollo-server-express": "^2.2.6",
