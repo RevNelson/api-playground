@@ -2,7 +2,6 @@ import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import cookies from "cookie";
 
 config();
 
@@ -28,10 +27,10 @@ const start = async () => {
 
     app.post("*", function(req, res, next) {
       let user;
-      console.log(req.headers);
       // Check for Cookies
-      const cookie = cookies.parse(req.headers.cookie || "");
-      cookie[API_NAME] && (user = checkJWT(cookie[API_NAME]));
+      const token =
+        (req.headers.cookie && req.headers.cookie.split("=")[1]) || "";
+      token && (user = checkJWT(token));
 
       // Check for Auth Header
       req.headers.authorization && (user = checkJWT(req.headers.authorization));
