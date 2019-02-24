@@ -99,7 +99,7 @@ const userResolvers = {
     },
     logoutUser: async (_, none, { res, user }, info) => {
       clearCookie(res);
-      return user.username || "";
+      return user && user.username || "";
     }
   }
 };
