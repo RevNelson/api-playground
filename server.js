@@ -2,6 +2,7 @@ import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 
 config();
 
@@ -14,6 +15,8 @@ const start = async () => {
   try {
     const app = express();
     app.use(morgan("combined"));
+
+    app.use(cookieParser());
 
     const corsMiddleware = {
       origin: ORIGIN_URL,
@@ -28,8 +31,7 @@ const start = async () => {
     app.post("*", function(req, res, next) {
       let user;
       // Check for Cookies
-      const token =
-        (req.headers.cookie && req.headers.cookie.split("=")[1]) || "";
+      const token = req.cookies[API_NAME] || "";
       token && (user = checkJWT(token));
 
       // Check for Auth Header
