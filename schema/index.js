@@ -74,8 +74,8 @@ const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context: async ({ req, res }) => {
-    req.user && console.log("CTX User: ", req.user);
-    req.userId && console.log("CTX UserID: ", req.userId);
+    // req.user && console.log("CTX User: ", req.user);
+    // req.userId && console.log("CTX UserID: ", req.userId);
     return { prisma, ...req, userId: req.userId && req.userId, res };
   },
   fragmentReplacements,
@@ -85,15 +85,15 @@ const apolloServer = new ApolloServer({
       "request.credentials": "include",
       "editor.theme": "dark"
     }
-  },
-  formatError: error => {
-    console.log("Error: ", error);
-    return error;
-  },
-  formatResponse: response => {
-    console.log("Response: ", response);
-    return response;
   }
+  // formatError: error => {
+  //   console.log("Error: ", error);
+  //   return error;
+  // },
+  // formatResponse: response => {
+  //   console.log("Response: ", response);
+  //   return response;
+  // }
 });
 // Exports
 export default apolloServer;

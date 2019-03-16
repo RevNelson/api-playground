@@ -13,4 +13,7 @@ type Name @embedded {
   it: String
   fr: String
   es: String
+  de: String
+  ru: String
+  ua: String
 }

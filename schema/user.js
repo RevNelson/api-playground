@@ -5,6 +5,7 @@ const userTypes = gql`
   type User {
     id: ID!
     username: String!
+    name: Name
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -15,6 +16,9 @@ const userTypes = gql`
     it: String
     fr: String
     es: String
+    de: String
+    ru: String
+    ua: String
   }
 
   extend type Query {
@@ -24,7 +28,7 @@ const userTypes = gql`
   }
 
   extend type Mutation {
-    registerUser(username: String!, password: String!): User!
+    registerUser(user: UserInput!): User!
     loginUser(username: String!, password: String!): LoginUserResponse!
     logoutUser: String
   }
@@ -33,7 +37,27 @@ const userTypes = gql`
     token: String
     user: User
   }
+
+  input UserInput {
+    username: String!
+    password: String!
+    name: NameInput
+  }
+
+  input NameInput {
+    en: String
+    zh: String
+    it: String
+    fr: String
+    es: String
+    de: String
+    ru: String
+    ua: String
+  }
 `;
+
+const userPrismaReturn =
+  "{ id username createdAt updatedAt password name { en zh de es fr it ru ua } }";
 
 const userResolvers = {
   Query: {
@@ -58,7 +82,10 @@ const userResolvers = {
     checkAuth: async (_, { data }, { prisma, res, user }, info) => {
       console.log("Get User ID: ", user);
       if (user) {
-        return await prisma.query.user({ where: { id: user.id } });
+        return await prisma.query.user(
+          { where: { id: user.id } },
+          userPrismaReturn
+        );
       }
     },
     getUser: async (_, { data }, { prisma, user }, info) => {
@@ -70,20 +97,25 @@ const userResolvers = {
   },
 
   Mutation: {
-    registerUser: async (_, { username, password }, { prisma }, info) => {
+    registerUser: async (_, { user }, { prisma }, info) => {
+      const { username, password, name } = user;
       const hashedPassword = await hashPass(password);
-      const user = await prisma.mutation.createUser({
+      const newUser = await prisma.mutation.createUser({
         data: {
           username,
-          password: hashedPassword
+          password: hashedPassword,
+          name: { create: { ...name } }
         }
       });
-      return user;
+      return newUser;
     },
     loginUser: async (_, { username, password }, { prisma, res }, info) => {
-      const user = await prisma.query.user({
-        where: { username }
-      });
+      const user = await prisma.query.user(
+        {
+          where: { username }
+        },
+        userPrismaReturn
+      );
 
       if (!user) {
         throw new Error("Invalid Login");
@@ -99,7 +131,7 @@ const userResolvers = {
     },
     logoutUser: async (_, none, { res, user }, info) => {
       clearCookie(res);
-      return user && user.username || "";
+      return (user && user.username) || "";
     }
   }
 };
