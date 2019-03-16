@@ -18,7 +18,7 @@ const userTypes = gql`
     es: String
     de: String
     ru: String
-    ua: String
+    uk: String
   }
 
   extend type Query {
@@ -52,12 +52,12 @@ const userTypes = gql`
     es: String
     de: String
     ru: String
-    ua: String
+    uk: String
   }
 `;
 
 const userPrismaReturn =
-  "{ id username createdAt updatedAt password name { en zh de es fr it ru ua } }";
+  "{ id username createdAt updatedAt password name { en zh de es fr it ru uk } }";
 
 const userResolvers = {
   Query: {

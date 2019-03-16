@@ -15,5 +15,5 @@ type Name @embedded {
   es: String
   de: String
   ru: String
-  ua: String
+  uk: String
 }

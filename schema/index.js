@@ -85,15 +85,15 @@ const apolloServer = new ApolloServer({
       "request.credentials": "include",
       "editor.theme": "dark"
     }
+  },
+  formatError: error => {
+    console.log("Error: ", error);
+    return error;
+  },
+  formatResponse: response => {
+    console.log("Response: ", response);
+    return response;
   }
-  // formatError: error => {
-  //   console.log("Error: ", error);
-  //   return error;
-  // },
-  // formatResponse: response => {
-  //   console.log("Response: ", response);
-  //   return response;
-  // }
 });
 // Exports
 export default apolloServer;
